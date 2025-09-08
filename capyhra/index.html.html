@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <title>CapyDominik Clicker: MAX EDITION</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #222;
+      color: #fff;
+    }
+    h1 {
+      margin-top: 30px;
+    }
+    #score {
+      font-size: 2em;
+      margin: 20px;
+    }
+    #clickBtn, .upgradeBtn, .skinBtn {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #clickBtn {
+      background-color: #ff9800;
+      color: white;
+    }
+    .upgradeBtn {
+      background-color: #4caf50;
+      color: white;
+    }
+    .upgradeBtn:disabled {
+      background-color: #777;
+      cursor: not-allowed;
+    }
+    .skinBtn {
+      background-color: #2196f3;
+      color: white;
+    }
+    #shop, #skins {
+      margin-top: 30px;
+    }
+    audio {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐹 CapyDominik Clicker: MAX EDITION</h1>
+  <div id="score">Skóre: 0</div>
+  <button id="clickBtn">Klikni ma!</button>
+
+  <div id="shop">
+    <h2>🛍 Obchod</h2>
+    <button class="upgradeBtn" onclick="buyClickUpgrade(2, 50)">2x Klik (50)</button>
+    <button class="upgradeBtn" onclick="buyClickUpgrade(5, 250)">5x Klik (250)</button>
+    <button class="upgradeBtn" onclick="buyClickUpgrade(10, 5000)">10x Klik (5000)</button>
+    <button class="upgradeBtn" onclick="buyClickUpgrade(25, 15000)">25x Klik (15000)</button>
+    <button class="upgradeBtn" onclick="buyClickUpgrade(50, 50000)">50x Klik (50000)</button>
+
+    <button class="upgradeBtn" onclick="buyAutoClicker(1, 500)">Autoclicker (500)</button>
+    <button class="upgradeBtn" onclick="buyAutoClicker(5, 2000)">Super Autoclicker (2000)</button>
+    <button class="upgradeBtn" onclick="buyAutoClicker(10, 10000)">Mega Autoclicker (10000)</button>
+    <button class="upgradeBtn" onclick="buyAutoClicker(50, 50000)">Ultra Autoclicker (50000)</button>
+    <button class="upgradeBtn" onclick="buyAutoClicker(100, 100000)">Capyclicker 3000 (100000)</button>
+
+    <button class="upgradeBtn" onclick="rebirth()">🔁 Rebirth (<span id="rebirthCost">10000</span>)</button>
+  </div>
+
+  <div id="skins">
+    <h2>🎨 Skins</h2>
+    <button class="skinBtn" onclick="changeSkin('#ff9800')">🔥 Classic</button>
+    <button class="skinBtn" onclick="changeSkin('#e91e63')">💖 Pink</button>
+    <button class="skinBtn" onclick="changeSkin('#00bcd4')">🌊 Aqua</button>
+    <button class="skinBtn" onclick="changeSkin('#4caf50')">🌿 Green</button>
+    <button class="skinBtn" onclick="changeSkin('#ffd700')">🪙 Gold</button>
+    <button class="skinBtn" onclick="changeSkin('#9c27b0')">🧱 Pixel</button>
+    <button class="skinBtn" onclick="changeSkin('#3f51b5')">🌌 Space</button>
+  </div>
+
+  <div id="rebirths">Rebirth bonus: 0</div>
+
+  <audio controls autoplay loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    Tvoj prehliadač nepodporuje prehrávanie hudby.
+  </audio>
+
+  <script>
+    let score = parseInt(localStorage.getItem("score")) || 0;
+    let clickPower = parseInt(localStorage.getItem("clickPower")) || 1;
+    let rebirthBonus = parseInt(localStorage.getItem("rebirthBonus")) || 0;
+    let rebirthCount = parseInt(localStorage.getItem("rebirthCount")) || 0;
+    let rebirthCost = parseInt(localStorage.getItem("rebirthCost")) || 10000;
+
+    const scoreDisplay = document.getElementById("score");
+    const clickBtn = document.getElementById("clickBtn");
+    const rebirthsDisplay = document.getElementById("rebirths");
+    const rebirthCostDisplay = document.getElementById("rebirthCost");
+
+    function updateDisplay() {
+      scoreDisplay.textContent = "Skóre: " + score;
+      rebirthsDisplay.textContent = "Rebirth bonus: " + rebirthBonus;
+      rebirthCostDisplay.textContent = rebirthCost;
+      saveProgress();
+    }
+
+    function saveProgress() {
+      localStorage.setItem("score", score);
+      localStorage.setItem("clickPower", clickPower);
+      localStorage.setItem("rebirthBonus", rebirthBonus);
+      localStorage.setItem("rebirthCount", rebirthCount);
+      localStorage.setItem("rebirthCost", rebirthCost);
+    }
+
+    clickBtn.addEventListener("click", () => {
+      score += clickPower + rebirthBonus;
+      updateDisplay();
+    });
+
+    function buyClickUpgrade(power, cost) {
+      if (score >= cost && clickPower < power) {
+        score = 0;
+        clickPower = power;
+        alert("💥 Získal si " + power + "x klik!");
+        updateDisplay();
+      }
+    }
+
+    function buyAutoClicker(rate, cost) {
+      if (score >= cost) {
+        score = 0;
+        alert("⚙ Autoclicker +" + rate + "/s aktivovaný!");
+        setInterval(() => {
+          score += (clickPower + rebirthBonus) * rate;
+          updateDisplay();
+        }, 1000);
+        updateDisplay();
+      }
+    }
+
+    function rebirth() {
+      if (score >= rebirthCost) {
+        score = 0;
+        clickPower = 1;
+        rebirthCount++;
+        rebirthBonus = rebirthCount;
+        rebirthCost *= 2;
+        alert("🔁 Rebirth #" + rebirthCount + " aktivovaný! Trvalý bonus +" + rebirthBonus);
+        updateDisplay();
+      }
+    }
+
+    function changeSkin(color) {
+      clickBtn.style.backgroundColor = color;
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
